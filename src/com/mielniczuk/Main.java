@@ -2,11 +2,7 @@ package com.mielniczuk;
 
 import javax.crypto.*;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -20,9 +16,9 @@ public class Main {
 
 
     private static JFrame frame;
-    private JTextArea textArea1;
-    private JTextArea textArea2;
-    private JTextArea textArea3;
+    private JTextArea inputText;
+    private JTextArea encryptedText;
+    private JTextArea decryptedText;
     private JButton startButton;
     private JPanel mainJPanel;
 
