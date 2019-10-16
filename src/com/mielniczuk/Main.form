@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="e0af7" class="javax.swing.JTextArea" binding="decryptedText">
+      <component id="e0af7" class="javax.swing.JTextArea" binding="decryptedTextArea">
         <constraints>
           <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="50"/>
@@ -16,7 +16,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="d1ce3" class="javax.swing.JTextArea" binding="encryptedText">
+      <component id="d1ce3" class="javax.swing.JTextArea" binding="encryptedTextArea">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="50"/>
@@ -24,7 +24,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="988ed" class="javax.swing.JTextArea" binding="inputText">
+      <component id="988ed" class="javax.swing.JTextArea" binding="inputTextArea">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="2" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="50"/>

@@ -16,18 +16,19 @@ public class Main {
 
 
     private static JFrame frame;
-    private JTextArea inputText;
-    private JTextArea encryptedText;
-    private JTextArea decryptedText;
+    private JTextArea inputTextArea;
+    private JTextArea encryptedTextArea;
+    private JTextArea decryptedTextArea;
     private JButton startButton;
     private JPanel mainJPanel;
 
-    private void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    private void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         FileInputStream inputFile = new FileInputStream("src/wolf.jpg");
         FileOutputStream outputFile = new FileOutputStream("src/wolfEncrypted.cfr");
         cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
+        encryptText();
         encryptFile(inputFile, outputFile);
     }
 
@@ -38,6 +39,12 @@ public class Main {
         while ((readBytes= inputFile.read(buffer)) != -1) {
             cipherOut.write(buffer, 0, readBytes);
         }
+    }
+
+    private void encryptText() throws BadPaddingException, IllegalBlockSizeException {
+        String text = inputTextArea.getText();
+        String encryptedText = new String(cipher.doFinal(text.getBytes()));
+        encryptedTextArea.setText(encryptedText);
     }
 
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
@@ -66,7 +73,7 @@ public class Main {
             try {
                 encrypt();
                 decrypt();
-            } catch (IOException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException ex) {
+            } catch (IOException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException ex) {
                 ex.printStackTrace();
             }
         });
