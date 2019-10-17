@@ -34,6 +34,9 @@ public class Main {
 
         encryptText(inputText);
         encryptFile(inputFile, outputFile);
+
+        inputFile.close();
+        outputFile.close();
     }
 
     private void encryptFile(FileInputStream inputFile, FileOutputStream outputFile) throws IOException {
@@ -63,6 +66,10 @@ public class Main {
 
         decryptText(encryptedText);
         decryptFile(inputFile, outputFile);
+
+
+        inputFile.close();
+        outputFile.close();
     }
 
     private void decryptFile(FileInputStream inputFile, FileOutputStream outputFile) throws IOException {
