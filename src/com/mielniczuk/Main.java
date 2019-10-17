@@ -35,8 +35,8 @@ public class Main {
 
 
         encryptText(inputText);
-        encryptFile(inputFile, outputFile);
-        dbConnector.setData(encryptData(inputData));
+        encryptFile(inputData, outputFile);
+//        dbConnector.setData(encryptData(inputData));
 
         inputFile.close();
         outputFile.close();
@@ -47,12 +47,7 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
-            int blocksNumber = readBytes/8;
-            if (blocksNumber%2 == 0) {
-                cipherOut.write(buffer, 0, readBytes+readBytes%8);
-            } else {
-                cipherOut.write(buffer, 0, readBytes+readBytes%8+8);
-            }
+                cipherOut.write(buffer, 0, readBytes+readBytes%16);
         }
     }
 
@@ -68,15 +63,9 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
-            int blocksNumber = readBytes/8;
-            if (blocksNumber%2 == 0) {
-                cipherOut.write(buffer, 0, readBytes+readBytes%8);
-            } else {
-                cipherOut.write(buffer, 0, readBytes+readBytes%8+8);
-            }
+                cipherOut.write(buffer, 0, readBytes+readBytes%16);
         }
-        ByteArrayInputStream a =new ByteArrayInputStream(outStream.toByteArray());
-        return a;
+        return new ByteArrayInputStream(outStream.toByteArray());
     }
 
 
@@ -91,8 +80,8 @@ public class Main {
         cipher.init(Cipher.DECRYPT_MODE, key);
 
         decryptText(encryptedText);
-        decryptFile(inputFile, outputFile);
-        decryptData(dbConnector.getData(),outputData);
+        decryptFile(inputFile, outputData);
+//        decryptData(dbConnector.getData(),outputData);
 
         inputFile.close();
         outputFile.close();
