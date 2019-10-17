@@ -34,7 +34,6 @@ public class Main {
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
 
-
         encryptText(inputText);
         encryptFile(inputFile, outputFile);
         dbConnector.setData(encryptData(inputData));
@@ -48,7 +47,12 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
-            cipherOut.write(buffer, 0, readBytes);
+            int blocksNumber = readBytes/8;
+            if (blocksNumber%2 == 0) {
+                cipherOut.write(buffer, 0, readBytes+readBytes%8);
+            } else {
+                cipherOut.write(buffer, 0, readBytes+readBytes%8+8);
+            }
         }
     }
 
@@ -64,9 +68,15 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
-            cipherOut.write(buffer, 0, readBytes);
+            int blocksNumber = readBytes/8;
+            if (blocksNumber%2 == 0) {
+                cipherOut.write(buffer, 0, readBytes+readBytes%8);
+            } else {
+                cipherOut.write(buffer, 0, readBytes+readBytes%8+8);
+            }
         }
-        return new ByteArrayInputStream(outStream.toByteArray());
+        ByteArrayInputStream a =new ByteArrayInputStream(outStream.toByteArray());
+        return a;
     }
 
 
