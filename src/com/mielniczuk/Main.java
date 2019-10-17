@@ -13,7 +13,8 @@ public class Main {
     private Cipher cipher;
     private byte[] encryptedData;
     private DBConnector dbConnector;
-
+    private int filledBytesNumberForFile;
+    private int filledBytesNumberForData;
 
     private static JFrame frame;
     private JTextArea inputTextArea;
@@ -47,7 +48,8 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
-                cipherOut.write(buffer, 0, readBytes+readBytes%16);
+            cipherOut.write(buffer, 0, readBytes + readBytes % 16);
+            filledBytesNumberForFile = readBytes%16;
         }
     }
 
@@ -63,7 +65,7 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
-                cipherOut.write(buffer, 0, readBytes+readBytes%16);
+            cipherOut.write(buffer, 0, readBytes + readBytes % 16);
         }
         return new ByteArrayInputStream(outStream.toByteArray());
     }
@@ -91,7 +93,12 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
-            outputFile.write(cipher.update(buffer, 0, readBytes));
+            if (readBytes < 2048) {
+                byte[] tmp = cipher.update(buffer, 0, readBytes);
+                outputFile.write(tmp,0,readBytes-filledBytesNumberForFile);
+            } else {
+                outputFile.write(cipher.update(buffer, 0, readBytes));
+            }
         }
     }
 
