@@ -20,21 +20,24 @@ public class DBConnector {
         }
     }
 
-    public ResultSet getData(int id) {
+    public InputStream getData() {
+        InputStream data = null;
         try {
             statement = connect.createStatement();
             resultSet = statement
-                    .executeQuery("select data from bsi.crypto where ID=" + id + ";");
+                    .executeQuery("select data from bsi.crypto order by id desc limit 1");
+            resultSet.next();
+            data = resultSet.getBinaryStream("data");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return resultSet;
+        return data;
     }
 
     public void setData(InputStream data) {
         try {
             preparedStatement = connect.prepareStatement("insert into bsi.crypto values (default , ?)");
-            preparedStatement.setBlob(1, data);
+            preparedStatement.setBinaryStream(1, data);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

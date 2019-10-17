@@ -73,6 +73,7 @@ public class Main {
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         FileInputStream inputFile = new FileInputStream("src/wolfEncrypted.cfr");
         FileOutputStream outputFile = new FileOutputStream("src/wolfDecrypted.jpg");
+        FileOutputStream outputData = new FileOutputStream("src/plikDecrypted.txt");
 
         String encryptedText = encryptedTextArea.getText();
 
@@ -81,7 +82,7 @@ public class Main {
 
         decryptText(encryptedText);
         decryptFile(inputFile, outputFile);
-
+        decryptData(dbConnector.getData(),outputData);
 
         inputFile.close();
         outputFile.close();
@@ -98,6 +99,14 @@ public class Main {
     private void decryptText(String encryptedText) throws BadPaddingException, IllegalBlockSizeException {
         String decryptedText = new String(cipher.doFinal(encryptedData));
         decryptedTextArea.setText(decryptedText);
+    }
+
+    private void decryptData(InputStream inputStream, FileOutputStream outputFile) throws IOException {
+        byte[] buffer = new byte[2048];
+        int readBytes;
+        while ((readBytes = inputStream.read(buffer)) != -1) {
+            outputFile.write(cipher.update(buffer, 0, readBytes));
+        }
     }
 
     private Main() throws NoSuchAlgorithmException {
