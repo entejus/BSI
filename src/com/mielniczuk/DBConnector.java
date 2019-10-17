@@ -9,21 +9,20 @@ public class DBConnector {
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
-    public DBConnector() throws SQLException, ClassNotFoundException {
+    public DBConnector() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
                     .getConnection("jdbc:mysql://localhost/bsi?"
                             + "user=root&password=password");
-
-            statement = connect.createStatement();
         } catch (Exception e) {
-            throw e;
+            e.printStackTrace();
         }
     }
 
     public ResultSet getData(int id) {
         try {
+            statement = connect.createStatement();
             resultSet = statement
                     .executeQuery("select data from bsi.crypto where ID=" + id + ";");
         } catch (SQLException e) {

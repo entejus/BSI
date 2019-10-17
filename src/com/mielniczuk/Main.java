@@ -2,9 +2,7 @@ package com.mielniczuk;
 
 import javax.crypto.*;
 import javax.swing.*;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -14,6 +12,7 @@ public class Main {
     private SecretKey key;
     private Cipher cipher;
     private byte[] encryptedData;
+    private DBConnector dbConnector;
 
 
     private static JFrame frame;
@@ -25,6 +24,8 @@ public class Main {
 
     private void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         FileInputStream inputFile = new FileInputStream("src/wolf.jpg");
+        FileInputStream inputData = new FileInputStream("src/plik.txt");
+
         FileOutputStream outputFile = new FileOutputStream("src/wolfEncrypted.cfr");
 
         String inputText = inputTextArea.getText();
@@ -32,8 +33,11 @@ public class Main {
         cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
+
+
         encryptText(inputText);
         encryptFile(inputFile, outputFile);
+        dbConnector.setData(encryptData(inputData));
 
         inputFile.close();
         outputFile.close();
@@ -52,6 +56,17 @@ public class Main {
         encryptedData = cipher.doFinal(inputText.getBytes());
         String encryptedText = new String(encryptedData);
         encryptedTextArea.setText(encryptedText);
+    }
+
+    private InputStream encryptData(FileInputStream inputFile) throws IOException {
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        CipherOutputStream cipherOut = new CipherOutputStream(outStream, cipher);
+        byte[] buffer = new byte[2048];
+        int readBytes;
+        while ((readBytes = inputFile.read(buffer)) != -1) {
+            cipherOut.write(buffer, 0, readBytes);
+        }
+        return new ByteArrayInputStream(outStream.toByteArray());
     }
 
 
@@ -86,6 +101,8 @@ public class Main {
     }
 
     private Main() throws NoSuchAlgorithmException {
+        dbConnector = new DBConnector();
+
         keygen = KeyGenerator.getInstance("DESede");
         key = keygen.generateKey();
 
