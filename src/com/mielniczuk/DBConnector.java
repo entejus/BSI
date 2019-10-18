@@ -46,7 +46,7 @@ public class DBConnector {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
+        };
     }
 
     private void close() {
