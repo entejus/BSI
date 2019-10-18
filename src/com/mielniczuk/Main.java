@@ -41,13 +41,13 @@ public class Main {
 
         encryptFile(inputFile,ENCRYPTED_FILE_PATH,cipher);
 
-        ByteArrayOutputStream o1 = (ByteArrayOutputStream) encryptData(inputData,cipher);
-        ByteArrayInputStream i = new ByteArrayInputStream(o1.toByteArray());
-        dbConnector.setData(i);
+        ByteArrayOutputStream encryptedDataOutput = (ByteArrayOutputStream) encryptData(inputData,cipher);
+        ByteArrayInputStream encryptedDataInput = new ByteArrayInputStream(encryptedDataOutput.toByteArray());
+        dbConnector.setData(encryptedDataInput);
 
         inputFile.close();
-        o1.close();
-        i.close();
+        encryptedDataOutput.close();
+        encryptedDataInput.close();
     }
 
     private String encryptText(String inputText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
@@ -60,7 +60,6 @@ public class Main {
         encryptStream(inputFile,outputFile,cipher);
         outputFile.close();
     }
-
 
     private OutputStream encryptData(FileInputStream inputFile,Cipher cipher) throws IOException {
         OutputStream outStream = new ByteArrayOutputStream();
