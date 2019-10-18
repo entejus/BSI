@@ -8,19 +8,17 @@ import java.security.NoSuchAlgorithmException;
 
 public class Main {
 
-    private static String FILE_PATH = "src/wolf.jpg";
-    private static String DECRYPTED_FILE_PATH = "src/wolfDecrypted.jpg";
-    private static String ENCRYPTED_FILE_PATH = "src/wolfEncrypted.cfr";
-    private static String DATA_PATH = "src/plik.txt";
-    private static String DECRYPTED_DATA_PATH = "src/plikDecrypted.txt";
+    private static final String FILE_PATH = "src/wolf.jpg";
+    private static final String DECRYPTED_FILE_PATH = "src/wolfDecrypted.jpg";
+    private static final String ENCRYPTED_FILE_PATH = "src/wolfEncrypted.cfr";
+    private static final String DATA_PATH = "src/plik.txt";
+    private static final String DECRYPTED_DATA_PATH = "src/plikDecrypted.txt";
 
-    private KeyGenerator keygen;
     private SecretKey key;
     private byte[] encryptedTextBytes;
     private DBConnector dbConnector;
 
 
-    private static JFrame frame;
     private JTextArea inputTextArea;
     private JTextArea encryptedTextArea;
     private JTextArea decryptedTextArea;
@@ -36,12 +34,12 @@ public class Main {
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
 
-        String encryptedText = encryptText(inputText,cipher);
+        String encryptedText = encryptText(inputText, cipher);
         encryptedTextArea.setText(encryptedText);
 
-        encryptFile(inputFile,ENCRYPTED_FILE_PATH,cipher);
+        encryptFile(inputFile, ENCRYPTED_FILE_PATH, cipher);
 
-        ByteArrayOutputStream encryptedDataOutput = (ByteArrayOutputStream) encryptData(inputData,cipher);
+        ByteArrayOutputStream encryptedDataOutput = (ByteArrayOutputStream) encryptData(inputData, cipher);
         ByteArrayInputStream encryptedDataInput = new ByteArrayInputStream(encryptedDataOutput.toByteArray());
         dbConnector.setData(encryptedDataInput);
 
@@ -55,27 +53,17 @@ public class Main {
         return new String(encryptedTextBytes);
     }
 
-    private void encryptFile(FileInputStream inputFile,String outputFilePath,Cipher cipher) throws IOException {
+    private void encryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
-        encryptStream(inputFile,outputFile,cipher);
+        cryptingStream(inputFile, outputFile, cipher);
         outputFile.close();
     }
 
-    private OutputStream encryptData(FileInputStream inputFile,Cipher cipher) throws IOException {
+    private OutputStream encryptData(FileInputStream inputFile, Cipher cipher) throws IOException {
         OutputStream outStream = new ByteArrayOutputStream();
-        encryptStream(inputFile,outStream,cipher);
+        cryptingStream(inputFile, outStream, cipher);
         return outStream;
     }
-    private void encryptStream(InputStream inputStream, OutputStream outputStream,Cipher cipher) throws IOException {
-        CipherOutputStream cipherOut = new CipherOutputStream(outputStream, cipher);
-        byte[] buffer = new byte[2048];
-        int readBytes;
-        while ((readBytes = inputStream.read(buffer)) != -1) {
-            cipherOut.write(buffer, 0, readBytes);
-        }
-        cipherOut.close();
-    }
-
 
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         String encryptedText = encryptedTextArea.getText();
@@ -88,10 +76,10 @@ public class Main {
         String decryptedText = decryptText(cipher);
         decryptedTextArea.setText(decryptedText);
 
-        decryptFile(inputFile, DECRYPTED_FILE_PATH,cipher);
+        decryptFile(inputFile, DECRYPTED_FILE_PATH, cipher);
 
         ByteArrayInputStream encryptedDataInput = dbConnector.getData();
-        decryptData(encryptedDataInput, outputData,cipher);
+        decryptData(encryptedDataInput, outputData, cipher);
 
         inputFile.close();
         outputData.close();
@@ -102,18 +90,19 @@ public class Main {
         return new String(cipher.doFinal(encryptedTextBytes));
     }
 
-    private void decryptFile(FileInputStream inputFile, String outputFilePath,Cipher cipher) throws IOException {
+    private void decryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
-        decryptStream(inputFile,outputFile,cipher);
+        cryptingStream(inputFile, outputFile, cipher);
         outputFile.close();
     }
 
 
     private void decryptData(ByteArrayInputStream inputStream, FileOutputStream outputFile, Cipher cipher) throws IOException {
-        decryptStream(inputStream,outputFile,cipher);
+        cryptingStream(inputStream, outputFile, cipher);
     }
 
-    private void decryptStream(InputStream inputStream, OutputStream outputStream,Cipher cipher) throws IOException {
+
+    private void cryptingStream(InputStream inputStream, OutputStream outputStream, Cipher cipher) throws IOException {
         CipherOutputStream cipherOut = new CipherOutputStream(outputStream, cipher);
         byte[] buffer = new byte[2048];
         int readBytes;
@@ -126,7 +115,7 @@ public class Main {
     private Main() throws NoSuchAlgorithmException {
         dbConnector = new DBConnector();
 
-        keygen = KeyGenerator.getInstance("DESede");
+        KeyGenerator keygen = KeyGenerator.getInstance("DESede");
         key = keygen.generateKey();
 
         startButton.addActionListener(e -> {
@@ -141,7 +130,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
-        frame = new JFrame("Cryptography");
+        JFrame frame = new JFrame("Cryptography");
         frame.setContentPane(new Main().mainJPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
