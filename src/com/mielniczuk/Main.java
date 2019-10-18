@@ -90,12 +90,12 @@ public class Main {
 
         decryptFile(inputFile, DECRYPTED_FILE_PATH,cipher);
 
-        ByteArrayInputStream i = dbConnector.getData();
-        decryptData(i, outputData,cipher);
+        ByteArrayInputStream encryptedDataInput = dbConnector.getData();
+        decryptData(encryptedDataInput, outputData,cipher);
 
         inputFile.close();
         outputData.close();
-        i.close();
+        encryptedDataInput.close();
     }
 
     private String decryptText(Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
