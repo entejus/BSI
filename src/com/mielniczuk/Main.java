@@ -25,6 +25,7 @@ public class Main {
     private JButton startButton;
     private JPanel mainJPanel;
 
+
     private void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         String inputText = inputTextArea.getText();
         FileInputStream inputFile = new FileInputStream(FILE_PATH);
@@ -32,7 +33,6 @@ public class Main {
 
         Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.ENCRYPT_MODE, key);
-
 
         String encryptedText = encryptText(inputText, cipher);
         encryptedTextArea.setText(encryptedText);
@@ -65,8 +65,8 @@ public class Main {
         return outStream;
     }
 
+
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        String encryptedText = encryptedTextArea.getText();
         FileInputStream inputFile = new FileInputStream(ENCRYPTED_FILE_PATH);
         FileOutputStream outputData = new FileOutputStream(DECRYPTED_DATA_PATH);
 
@@ -113,13 +113,13 @@ public class Main {
     }
 
     private Main() throws NoSuchAlgorithmException {
-        dbConnector = new DBConnector();
 
         KeyGenerator keygen = KeyGenerator.getInstance("DESede");
         key = keygen.generateKey();
 
         startButton.addActionListener(e -> {
             try {
+                dbConnector = new DBConnector();
                 encrypt();
                 decrypt();
                 dbConnector.close();
