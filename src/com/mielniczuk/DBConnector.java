@@ -24,7 +24,7 @@ public class DBConnector {
         }
     }
 
-    public ByteArrayInputStream getData() {
+    ByteArrayInputStream getData() {
         ByteArrayInputStream data = null;
         try {
             statement = connect.createStatement();
@@ -39,7 +39,7 @@ public class DBConnector {
         return data ;
     }
 
-    public void setData(ByteArrayInputStream data) {
+    void setData(ByteArrayInputStream data) {
         try {
             preparedStatement = connect.prepareStatement("insert into bsi.crypto values (default , ?)");
             preparedStatement.setBlob(1, data);
@@ -49,7 +49,7 @@ public class DBConnector {
         };
     }
 
-    private void close() {
+     void close() {
         try {
             if (resultSet != null) {
                 resultSet.close();

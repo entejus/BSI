@@ -16,7 +16,6 @@ public class Main {
 
     private KeyGenerator keygen;
     private SecretKey key;
-    private Cipher cipher;
     private byte[] encryptedData;
     private DBConnector dbConnector;
 
@@ -32,17 +31,16 @@ public class Main {
         FileInputStream inputFile = new FileInputStream(FILE_PATH);
         FileInputStream inputData = new FileInputStream(DATA_PATH);
 
-
         String inputText = inputTextArea.getText();
 
-        cipher = Cipher.getInstance("DESede");
+        Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
 
-        encryptText(inputText);
-        encryptFile(inputFile);
+        encryptText(inputText,cipher);
+        encryptFile(inputFile,ENCRYPTED_FILE_PATH,cipher);
 
-        ByteArrayOutputStream o1 = (ByteArrayOutputStream) encryptData(inputData);
+        ByteArrayOutputStream o1 = (ByteArrayOutputStream) encryptData(inputData,cipher);
         ByteArrayInputStream i = new ByteArrayInputStream(o1.toByteArray());
         dbConnector.setData(i);
 
@@ -51,76 +49,73 @@ public class Main {
         i.close();
     }
 
-    private void encryptFile(FileInputStream inputFile) throws IOException {
-        FileOutputStream outputFile = new FileOutputStream(ENCRYPTED_FILE_PATH);
-        CipherOutputStream cipherOut = new CipherOutputStream(outputFile, cipher);
-        byte[] buffer = new byte[2048];
-        int readBytes;
-        while ((readBytes = inputFile.read(buffer)) != -1) {
-            cipherOut.write(buffer, 0, readBytes);
-        }
-        cipherOut.close();
-        outputFile.close();
-    }
-
-    private void encryptText(String inputText) throws BadPaddingException, IllegalBlockSizeException {
+    private void encryptText(String inputText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
         encryptedData = cipher.doFinal(inputText.getBytes());
         String encryptedText = new String(encryptedData);
         encryptedTextArea.setText(encryptedText);
     }
 
-    private OutputStream encryptData(FileInputStream inputFile) throws IOException {
+    private void encryptFile(FileInputStream inputFile,String outputFilePath,Cipher cipher) throws IOException {
+        FileOutputStream outputFile = new FileOutputStream(outputFilePath);
+        encryptStream(inputFile,outputFile,cipher);
+        outputFile.close();
+    }
+
+
+    private OutputStream encryptData(FileInputStream inputFile,Cipher cipher) throws IOException {
         OutputStream outStream = new ByteArrayOutputStream();
-        CipherOutputStream cipherOut = new CipherOutputStream(outStream, cipher);
+        encryptStream(inputFile,outStream,cipher);
+        return outStream;
+    }
+    private void encryptStream(InputStream inputStream, OutputStream outputStream,Cipher cipher) throws IOException {
+        CipherOutputStream cipherOut = new CipherOutputStream(outputStream, cipher);
         byte[] buffer = new byte[2048];
         int readBytes;
-        while ((readBytes = inputFile.read(buffer)) != -1) {
+        while ((readBytes = inputStream.read(buffer)) != -1) {
             cipherOut.write(buffer, 0, readBytes);
         }
         cipherOut.close();
-        return outStream;
     }
 
 
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         FileInputStream inputFile = new FileInputStream(ENCRYPTED_FILE_PATH);
-        FileOutputStream outputFile = new FileOutputStream(DECRYPTED_FILE_PATH);
         FileOutputStream outputData = new FileOutputStream(DECRYPTED_DATA_PATH);
 
         String encryptedText = encryptedTextArea.getText();
 
-        cipher = Cipher.getInstance("DESede");
+        Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.DECRYPT_MODE, key);
 
-        decryptText(encryptedText);
-        decryptFile(inputFile, outputFile);
+        decryptText(encryptedText,cipher);
+        decryptFile(inputFile, DECRYPTED_FILE_PATH,cipher);
 
         ByteArrayInputStream i = dbConnector.getData();
-        decryptData(i, outputData);
+        decryptData(i, outputData,cipher);
 
         inputFile.close();
-        outputFile.close();
         outputData.close();
         i.close();
     }
 
-    private void decryptFile(FileInputStream inputFile, FileOutputStream outputFile) throws IOException {
-        CipherOutputStream cipherOut = new CipherOutputStream(outputFile, cipher);
-        byte[] buffer = new byte[2048];
-        int readBytes;
-        while ((readBytes = inputFile.read(buffer)) != -1) {
-            cipherOut.write(buffer, 0, readBytes);
-        }
-        cipherOut.close();
-    }
-
-    private void decryptText(String encryptedText) throws BadPaddingException, IllegalBlockSizeException {
+    private void decryptText(String encryptedText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
         String decryptedText = new String(cipher.doFinal(encryptedData));
         decryptedTextArea.setText(decryptedText);
     }
 
-    private void decryptData(ByteArrayInputStream inputStream, FileOutputStream outputFile) throws IOException {
-        CipherOutputStream cipherOut = new CipherOutputStream(outputFile, cipher);
+    private void decryptFile(FileInputStream inputFile, String outputFilePath,Cipher cipher) throws IOException {
+        FileOutputStream outputFile = new FileOutputStream(outputFilePath);
+        decryptStream(inputFile,outputFile,cipher);
+        outputFile.close();
+    }
+
+
+    private void decryptData(ByteArrayInputStream inputStream, FileOutputStream outputFile, Cipher cipher) throws IOException {
+        decryptStream(inputStream,outputFile,cipher);
+    }
+
+    private void decryptStream(InputStream inputStream, OutputStream outputStream,Cipher cipher) throws IOException {
+        CipherOutputStream cipherOut = new CipherOutputStream(outputStream, cipher);
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputStream.read(buffer)) != -1) {
@@ -139,6 +134,7 @@ public class Main {
             try {
                 encrypt();
                 decrypt();
+                dbConnector.close();
             } catch (IOException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException ex) {
                 ex.printStackTrace();
             }
