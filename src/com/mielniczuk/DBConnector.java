@@ -1,6 +1,10 @@
 package com.mielniczuk;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 
 public class DBConnector {
@@ -20,24 +24,25 @@ public class DBConnector {
         }
     }
 
-    public InputStream getData() {
-        InputStream data = null;
+    public ByteArrayInputStream getData() {
+        ByteArrayInputStream data = null;
         try {
             statement = connect.createStatement();
             resultSet = statement
                     .executeQuery("select data from bsi.crypto order by id desc limit 1");
             resultSet.next();
-            data = resultSet.getBinaryStream("data");
+            data =  (ByteArrayInputStream)resultSet.getBinaryStream("data");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return data;
+
+        return data ;
     }
 
-    public void setData(InputStream data) {
+    public void setData(ByteArrayInputStream data) {
         try {
             preparedStatement = connect.prepareStatement("insert into bsi.crypto values (default , ?)");
-            preparedStatement.setBinaryStream(1, data);
+            preparedStatement.setBlob(1, data);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -3,6 +3,8 @@ package com.mielniczuk;
 import javax.crypto.*;
 import javax.swing.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -36,8 +38,10 @@ public class Main {
 
 
         encryptText(inputText);
-        encryptFile(inputData, outputFile);
-//        dbConnector.setData(encryptData(inputData));
+        encryptFile(inputFile, outputFile);
+
+        ByteArrayOutputStream o1 = (ByteArrayOutputStream)encryptData(inputData);
+        dbConnector.setData(new ByteArrayInputStream(o1.toByteArray()));
 
         inputFile.close();
         outputFile.close();
@@ -51,6 +55,7 @@ public class Main {
             cipherOut.write(buffer, 0, readBytes + readBytes % 16);
             filledBytesNumberForFile = readBytes%16;
         }
+        cipherOut.close();
     }
 
     private void encryptText(String inputText) throws BadPaddingException, IllegalBlockSizeException {
@@ -59,15 +64,17 @@ public class Main {
         encryptedTextArea.setText(encryptedText);
     }
 
-    private InputStream encryptData(FileInputStream inputFile) throws IOException {
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    private OutputStream encryptData(FileInputStream inputFile) throws IOException {
+        OutputStream outStream = new ByteArrayOutputStream();
         CipherOutputStream cipherOut = new CipherOutputStream(outStream, cipher);
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputFile.read(buffer)) != -1) {
             cipherOut.write(buffer, 0, readBytes + readBytes % 16);
+            filledBytesNumberForData = readBytes %16;
         }
-        return new ByteArrayInputStream(outStream.toByteArray());
+        cipherOut.close();
+        return outStream;
     }
 
 
@@ -82,11 +89,15 @@ public class Main {
         cipher.init(Cipher.DECRYPT_MODE, key);
 
         decryptText(encryptedText);
-        decryptFile(inputFile, outputData);
-//        decryptData(dbConnector.getData(),outputData);
+        decryptFile(inputFile, outputFile);
+
+        InputStream i = dbConnector.getData();
+        decryptData(i,outputData);
 
         inputFile.close();
         outputFile.close();
+        outputData.close();
+        i.close();
     }
 
     private void decryptFile(FileInputStream inputFile, FileOutputStream outputFile) throws IOException {
@@ -111,7 +122,12 @@ public class Main {
         byte[] buffer = new byte[2048];
         int readBytes;
         while ((readBytes = inputStream.read(buffer)) != -1) {
-            outputFile.write(cipher.update(buffer, 0, readBytes));
+            if (readBytes < 2048) {
+                byte[] tmp = cipher.update(buffer, 0, readBytes);
+                outputFile.write(tmp,0,readBytes-filledBytesNumberForData);
+            } else {
+                outputFile.write(cipher.update(buffer, 0, readBytes));
+            }
         }
     }
 
