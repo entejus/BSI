@@ -16,7 +16,7 @@ public class Main {
 
     private KeyGenerator keygen;
     private SecretKey key;
-    private byte[] encryptedData;
+    private byte[] encryptedTextBytes;
     private DBConnector dbConnector;
 
 
@@ -51,8 +51,8 @@ public class Main {
     }
 
     private String encryptText(String inputText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
-        encryptedData = cipher.doFinal(inputText.getBytes());
-        return new String(encryptedData);
+        encryptedTextBytes = cipher.doFinal(inputText.getBytes());
+        return new String(encryptedTextBytes);
     }
 
     private void encryptFile(FileInputStream inputFile,String outputFilePath,Cipher cipher) throws IOException {
@@ -78,15 +78,16 @@ public class Main {
 
 
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        String encryptedText = encryptedTextArea.getText();
         FileInputStream inputFile = new FileInputStream(ENCRYPTED_FILE_PATH);
         FileOutputStream outputData = new FileOutputStream(DECRYPTED_DATA_PATH);
-
-        String encryptedText = encryptedTextArea.getText();
 
         Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.DECRYPT_MODE, key);
 
-        decryptText(encryptedText,cipher);
+        String decryptedText = decryptText(cipher);
+        decryptedTextArea.setText(decryptedText);
+
         decryptFile(inputFile, DECRYPTED_FILE_PATH,cipher);
 
         ByteArrayInputStream i = dbConnector.getData();
@@ -97,9 +98,8 @@ public class Main {
         i.close();
     }
 
-    private void decryptText(String encryptedText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
-        String decryptedText = new String(cipher.doFinal(encryptedData));
-        decryptedTextArea.setText(decryptedText);
+    private String decryptText(Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
+        return new String(cipher.doFinal(encryptedTextBytes));
     }
 
     private void decryptFile(FileInputStream inputFile, String outputFilePath,Cipher cipher) throws IOException {
