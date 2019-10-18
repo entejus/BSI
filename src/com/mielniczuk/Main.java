@@ -28,16 +28,17 @@ public class Main {
     private JPanel mainJPanel;
 
     private void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        String inputText = inputTextArea.getText();
         FileInputStream inputFile = new FileInputStream(FILE_PATH);
         FileInputStream inputData = new FileInputStream(DATA_PATH);
-
-        String inputText = inputTextArea.getText();
 
         Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
 
-        encryptText(inputText,cipher);
+        String encryptedText = encryptText(inputText,cipher);
+        encryptedTextArea.setText(encryptedText);
+
         encryptFile(inputFile,ENCRYPTED_FILE_PATH,cipher);
 
         ByteArrayOutputStream o1 = (ByteArrayOutputStream) encryptData(inputData,cipher);
@@ -49,10 +50,9 @@ public class Main {
         i.close();
     }
 
-    private void encryptText(String inputText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
+    private String encryptText(String inputText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
         encryptedData = cipher.doFinal(inputText.getBytes());
-        String encryptedText = new String(encryptedData);
-        encryptedTextArea.setText(encryptedText);
+        return new String(encryptedData);
     }
 
     private void encryptFile(FileInputStream inputFile,String outputFilePath,Cipher cipher) throws IOException {
