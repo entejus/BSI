@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class Main {
 
@@ -15,7 +16,6 @@ public class Main {
     private static final String DECRYPTED_DATA_PATH = "src/plikDecrypted.txt";
 
     private SecretKey key;
-    private byte[] encryptedTextBytes;
     private DBConnector dbConnector;
 
 
@@ -49,8 +49,8 @@ public class Main {
     }
 
     private String encryptText(String inputText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
-        encryptedTextBytes = cipher.doFinal(inputText.getBytes());
-        return new String(encryptedTextBytes);
+        byte[] inputBytes = inputText.getBytes();
+        return Base64.getEncoder().encodeToString(cipher.doFinal(inputBytes));
     }
 
     private void encryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
@@ -67,13 +67,14 @@ public class Main {
 
 
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        String encryptedText = encryptedTextArea.getText();
         FileInputStream inputFile = new FileInputStream(ENCRYPTED_FILE_PATH);
         FileOutputStream outputData = new FileOutputStream(DECRYPTED_DATA_PATH);
 
         Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.DECRYPT_MODE, key);
 
-        String decryptedText = decryptText(cipher);
+        String decryptedText = decryptText(encryptedText,cipher);
         decryptedTextArea.setText(decryptedText);
 
         decryptFile(inputFile, DECRYPTED_FILE_PATH, cipher);
@@ -86,8 +87,9 @@ public class Main {
         encryptedDataInput.close();
     }
 
-    private String decryptText(Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
-        return new String(cipher.doFinal(encryptedTextBytes));
+    private String decryptText(String encryptedText , Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
+        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
+        return new String(cipher.doFinal(encryptedBytes));
     }
 
     private void decryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
