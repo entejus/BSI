@@ -9,9 +9,11 @@ import java.util.Base64;
 
 public class Main {
 
+
     private static final String FILE_PATH = "src/wolf.jpg";
     private static final String DECRYPTED_FILE_PATH = "src/wolfDecrypted.jpg";
     private static final String ENCRYPTED_FILE_PATH = "src/wolfEncrypted.cfr";
+    private static final String ENCRYPTED_FILE2_PATH = "src/text.cfr";
     private static final String DATA_PATH = "src/plik.txt";
     private static final String DECRYPTED_DATA_PATH = "src/plikDecrypted.txt";
 
@@ -34,7 +36,7 @@ public class Main {
         Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
-        String encryptedText = encryptText(inputText, cipher);
+        String encryptedText = encryptText(inputText, ENCRYPTED_FILE2_PATH,cipher);
         encryptedTextArea.setText(encryptedText);
 
         encryptFile(inputFile, ENCRYPTED_FILE_PATH, cipher);
@@ -48,8 +50,11 @@ public class Main {
         encryptedDataInput.close();
     }
 
-    private String encryptText(String inputText, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
+    private String encryptText(String inputText,  String outputFilePath,Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
+        FileOutputStream outputFile = new FileOutputStream(outputFilePath);
         byte[] inputBytes = inputText.getBytes();
+        outputFile.write(cipher.doFinal(inputBytes));
+        outputFile.close();
         return Base64.getEncoder().encodeToString(cipher.doFinal(inputBytes));
     }
 
@@ -69,12 +74,13 @@ public class Main {
     private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         String encryptedText = encryptedTextArea.getText();
         FileInputStream inputFile = new FileInputStream(ENCRYPTED_FILE_PATH);
+        FileInputStream inputFile2 = new FileInputStream(ENCRYPTED_FILE2_PATH);
         FileOutputStream outputData = new FileOutputStream(DECRYPTED_DATA_PATH);
 
         Cipher cipher = Cipher.getInstance("DESede");
         cipher.init(Cipher.DECRYPT_MODE, key);
 
-        String decryptedText = decryptText(encryptedText,cipher);
+        String decryptedText = decryptText(encryptedText,inputFile2,cipher);
         decryptedTextArea.setText(decryptedText);
 
         decryptFile(inputFile, DECRYPTED_FILE_PATH, cipher);
@@ -83,12 +89,14 @@ public class Main {
         decryptData(encryptedDataInput, outputData, cipher);
 
         inputFile.close();
+        inputFile2.close();
         outputData.close();
         encryptedDataInput.close();
     }
 
-    private String decryptText(String encryptedText , Cipher cipher) throws BadPaddingException, IllegalBlockSizeException {
-        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
+    private String decryptText(String encryptedText ,FileInputStream inputFile, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
+//        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
+        byte[] encryptedBytes = inputFile.readAllBytes();
         return new String(cipher.doFinal(encryptedBytes));
     }
 
@@ -114,7 +122,7 @@ public class Main {
         cipherOut.close();
     }
 
-    private Main() throws NoSuchAlgorithmException {
+    public Main() throws NoSuchAlgorithmException {
 
         KeyGenerator keygen = KeyGenerator.getInstance("DESede");
         key = keygen.generateKey();
