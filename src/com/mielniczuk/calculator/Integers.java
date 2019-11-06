@@ -1,7 +1,7 @@
 package com.mielniczuk.calculator;
 
 public class Integers {
-    int add(int addend1, int addend2){
+    public int add(int addend1, int addend2){
         return addend1+addend2;
     }
 

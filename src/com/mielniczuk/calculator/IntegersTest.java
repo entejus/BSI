@@ -1,16 +1,15 @@
 package com.mielniczuk.calculator;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.junit.jupiter.api.Test;
+import junitparams.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testng.annotations.BeforeClass;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
-class IntegersTest {
-    private static Integers integers;
+public class IntegersTest {
+    public static Integers integers;
 
     @BeforeClass
     public static void setIntegers() {
@@ -18,24 +17,25 @@ class IntegersTest {
     }
 
     @Test
-    @Parameters({"0,0,0","-5,2,-3","-3,-10,-13","50,74,124"})
-    void add(int addend1, int addend2, int sum) {
+    @Parameters({"0,0,0", "-5,2,-3", "-3,-10,-13", "50,74,124"})
+    public void add(int addend1, int addend2, int sum) {
+        integers = new Integers();
         assertEquals(sum, integers.add(addend1, addend2));
     }
 
     @Test
-    void substract() {
+    public void substract() {
     }
 
     @Test
-    void multiply() {
+    public void multiply() {
     }
 
     @Test
-    void divide() {
+    public void divide() {
     }
 
     @Test
-    void factorial() {
+    public void factorial() {
     }
 }
