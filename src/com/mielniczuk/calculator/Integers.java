@@ -1,8 +1,8 @@
 package com.mielniczuk.calculator;
 
 public class Integers {
-    int add(int a, int b){
-        return a+b;
+    int add(int addend1, int addend2){
+        return addend1+addend2;
     }
 
     int substract(int a, int b){
