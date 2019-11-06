@@ -5,8 +5,8 @@ public class Integers {
         return addend1+addend2;
     }
 
-    int substract(int a, int b){
-        return a-b;
+    int subtract(int minuend, int subtrahend){
+        return minuend-subtrahend;
     }
 
     int multiply(int a, int b){

@@ -9,22 +9,18 @@ import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class IntegersTest {
-    public static Integers integers;
-
-    @BeforeClass
-    public static void setIntegers() {
-        integers = new Integers();
-    }
+    public  Integers integers = new Integers();
 
     @Test
     @Parameters({"0,0,0", "-5,2,-3", "-3,-10,-13", "50,74,124"})
     public void add(int addend1, int addend2, int sum) {
-        integers = new Integers();
         assertEquals(sum, integers.add(addend1, addend2));
     }
 
     @Test
-    public void substract() {
+    @Parameters({"0,0,0", "-5,2,-7", "-3,-10,7", "50,74,-24","1034,-66,1100"})
+    public void subtract(int minuend, int subtrahend, int difference) {
+        assertEquals(difference,integers.subtract(minuend,subtrahend));
     }
 
     @Test

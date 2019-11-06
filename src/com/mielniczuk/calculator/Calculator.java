@@ -3,7 +3,7 @@ package com.mielniczuk.calculator;
 public class Calculator {
     private static void integerMethods(Integers integers, int a, int b){
         System.out.println("Dodawanie: "+integers.add(a,b));
-        System.out.println("Odejmowanie: "+integers.substract(a,b));
+        System.out.println("Odejmowanie: "+integers.subtract(a,b));
         System.out.println("Mnożenie: "+integers.multiply(a,b));
         System.out.println("Dzielenie: "+integers.divide(a,b));
         System.out.println("Silnia: "+integers.factorial(a));
