@@ -1,4 +1,4 @@
-package com.mielniczuk;
+package com.mielniczuk.calculator;
 
 public class Integers {
     int add(int a, int b){

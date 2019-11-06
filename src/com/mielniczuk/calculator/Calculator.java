@@ -1,4 +1,4 @@
-package com.mielniczuk;
+package com.mielniczuk.calculator;
 
 public class Calculator {
     private static void integerMethods(Integers integers, int a, int b){

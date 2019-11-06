@@ -1,4 +1,4 @@
-package com.mielniczuk;
+package com.mielniczuk.calculator;
 
 public class Real {
     double  add (double a, double b){
