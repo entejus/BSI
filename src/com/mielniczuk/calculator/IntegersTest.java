@@ -24,11 +24,15 @@ public class IntegersTest {
     }
 
     @Test
-    public void multiply() {
+    @Parameters({"0,0,0", "-5,2,-10", "-3,-10,30", "50,74,3700","1034,0,0"})
+    public void multiply(int factor1,int factor2,int product) {
+        assertEquals(product,integers.multiply(factor1,factor2));
     }
 
     @Test
-    public void divide() {
+    @Parameters({"0,12,0", "-5,2,-2", "182,2,91", "1024,-16,-64","1034,-66,-15"})
+    public void divide(int dividend, int divisor,int quotient) {
+        assertEquals(quotient,integers.divide(dividend,divisor));
     }
 
     @Test
