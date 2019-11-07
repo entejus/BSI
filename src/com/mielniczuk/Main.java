@@ -28,7 +28,7 @@ public class Main {
     private JPanel mainJPanel;
 
 
-    private void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         String inputText = inputTextArea.getText();
         FileInputStream inputFile = new FileInputStream(FILE_PATH);
         FileInputStream inputData = new FileInputStream(DATA_PATH);
@@ -50,7 +50,7 @@ public class Main {
         encryptedDataInput.close();
     }
 
-    private String encryptText(String inputText,  String outputFilePath,Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
+    public String encryptText(String inputText,  String outputFilePath,Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
         byte[] inputBytes = inputText.getBytes();
         outputFile.write(cipher.doFinal(inputBytes));
@@ -58,20 +58,20 @@ public class Main {
         return Base64.getEncoder().encodeToString(cipher.doFinal(inputBytes));
     }
 
-    private void encryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
+    public void encryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
         cryptingStream(inputFile, outputFile, cipher);
         outputFile.close();
     }
 
-    private OutputStream encryptData(FileInputStream inputFile, Cipher cipher) throws IOException {
+    public OutputStream encryptData(FileInputStream inputFile, Cipher cipher) throws IOException {
         OutputStream outStream = new ByteArrayOutputStream();
         cryptingStream(inputFile, outStream, cipher);
         return outStream;
     }
 
 
-    private void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         String encryptedText = encryptedTextArea.getText();
         FileInputStream inputFile = new FileInputStream(ENCRYPTED_FILE_PATH);
         FileInputStream inputFile2 = new FileInputStream(ENCRYPTED_FILE2_PATH);
@@ -94,20 +94,20 @@ public class Main {
         encryptedDataInput.close();
     }
 
-    private String decryptText(String encryptedText ,FileInputStream inputFile, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
+    public String decryptText(String encryptedText ,FileInputStream inputFile, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
 //        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
         byte[] encryptedBytes = inputFile.readAllBytes();
         return new String(cipher.doFinal(encryptedBytes));
     }
 
-    private void decryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
+    public void decryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
         cryptingStream(inputFile, outputFile, cipher);
         outputFile.close();
     }
 
 
-    private void decryptData(ByteArrayInputStream inputStream, FileOutputStream outputFile, Cipher cipher) throws IOException {
+    public void decryptData(ByteArrayInputStream inputStream, FileOutputStream outputFile, Cipher cipher) throws IOException {
         cryptingStream(inputStream, outputFile, cipher);
     }
 

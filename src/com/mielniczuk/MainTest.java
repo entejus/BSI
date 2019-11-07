@@ -1,21 +1,23 @@
 package com.mielniczuk;
 
-import org.junit.jupiter.api.Test;
-import org.testng.annotations.BeforeClass;
+import junitparams.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
-class MainTest {
-    private static Main mainClass;
+public class MainTest {
+    private static Main main;
     @BeforeClass
     public static void setUpClass() throws NoSuchAlgorithmException {
-        mainClass = new Main();
+        main = new Main();
     }
 
-    @Test
-    public void testEncryptText() {
 
-    }
 }
