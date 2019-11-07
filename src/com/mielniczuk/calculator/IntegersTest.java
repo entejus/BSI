@@ -1,15 +1,21 @@
 package com.mielniczuk.calculator;
 
 import junitparams.*;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.testng.annotations.BeforeClass;
+
 
 import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class IntegersTest {
-    public  Integers integers = new Integers();
+    private static Integers integers;
+
+    @BeforeClass
+    public static void setUp() {
+        integers = new Integers();
+    }
 
     @Test
     @Parameters({"0,0,0", "-5,2,-3", "-3,-10,-13", "50,74,124"})
