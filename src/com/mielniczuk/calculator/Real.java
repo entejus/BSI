@@ -26,6 +26,9 @@ public class Real {
         return Math.pow(base,exponent);
     }
     double squareRoot(double number){
+        if(number < 0){
+            throw new IllegalArgumentException("Argument 'number' is less than 0");
+        }
         return Math.sqrt(number);
     }
 }
