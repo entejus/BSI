@@ -45,6 +45,13 @@ public class RealTest {
         assertEquals(quotient, real.divide(dividend, divisor), 0.01);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void divideByZero() {
+        double dividend = 12;
+        double divisor = 0;
+        real.divide(dividend,divisor);
+    }
+
     @Test
     @Parameters({"0.0,12.0,0.0", "5.2,2.3,44.341", "-182.88,1.0,-182.88",
             "24.1,-1.16,0.0249", "-3.0,3.0,-27.0", "-5.0,0.0,1", "0.0,0.0,1.0",
@@ -53,7 +60,23 @@ public class RealTest {
         assertEquals(result, real.power(base, exponent), 0.001);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void powerZeroToNegative() {
+        double base = 0;
+        double exponent = -12;
+        real.power(base,exponent);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void powerNegativeToDouble() {
+        double base = -12.5;
+        double exponent = 0.5;
+        real.power(base,exponent);
+    }
+
     @Test
-    public void squareRoot() {
+    @Parameters({"0.0,0.0","4.0,2.0","144.0,12.0","0.5,0.707","4.4,2.097"})
+    public void squareRoot(double number,double result) {
+        assertEquals(result,real.squareRoot(number),0.001);
     }
 }
