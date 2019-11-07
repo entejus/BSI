@@ -20,10 +20,14 @@ public class Integers {
         return dividend/divisor;
     }
 
-    int factorial(int a){
-        if(a == 0)
+    int factorial(int number){
+        if(number<0)
+        {
+            throw new IllegalArgumentException("Argument 'number' is less than 0");
+        }
+        else if(number == 0)
             return 1;
-        return a*factorial(a-1);
+        return number*factorial(number-1);
     }
 
 }
