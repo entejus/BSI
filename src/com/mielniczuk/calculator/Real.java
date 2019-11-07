@@ -17,6 +17,12 @@ public class Real {
         return dividend/divisor;
     }
     double power(double base,double exponent){
+        if(base<0 && exponent == Math.floor(exponent)){
+            throw new IllegalArgumentException("Argument 'base' is less than 0 and 'exponent' is'n integer");
+        }
+        if(base == 0 && exponent < 0){
+            throw new IllegalArgumentException("Argument 'base' is 0 and 'exponent' is less then 0");
+        }
         return Math.pow(base,exponent);
     }
     double squareRoot(double number){

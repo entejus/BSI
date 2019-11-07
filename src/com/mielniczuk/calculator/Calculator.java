@@ -25,7 +25,7 @@ public class Calculator {
 
         integerMethods(integers,5,2);
         System.out.println();
-        realMethods(real,-5.2,2.3);
+        realMethods(real,-0,-2);
 
     }
 }
