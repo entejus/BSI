@@ -79,4 +79,11 @@ public class RealTest {
     public void squareRoot(double number,double result) {
         assertEquals(result,real.squareRoot(number),0.001);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void squareRootNegative() {
+        double number = -12;
+        real.squareRoot(number);
+    }
+
 }
