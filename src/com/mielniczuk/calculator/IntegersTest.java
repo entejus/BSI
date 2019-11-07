@@ -35,9 +35,21 @@ public class IntegersTest {
         assertEquals(quotient,integers.divide(dividend,divisor));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void divideByZero(){
+        int dividend = 5;
+        int divisor = 0;
+        integers.divide(dividend,divisor);
+    }
     @Test
     @Parameters({"0,1", "1,1", "5,120"})
     public void factorial(int number, int factorial) {
         assertEquals(factorial,integers.factorial(number));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void factorialNegativeNumber() {
+        int number=-1;
+        integers.factorial(number);
     }
 }
