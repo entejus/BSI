@@ -10,9 +10,9 @@ public class Calculator {
     }
 
 
-    private static void realMethods(Real real, int a,int b){
+    private static void realMethods(Real real, double a,double b){
         System.out.println("Dodawanie: "+real.add(a,b));
-        System.out.println("Odejmowanie: "+real.substract(a,b));
+        System.out.println("Odejmowanie: "+real.subtract(a,b));
         System.out.println("Mnożenie: "+real.multiply(a,b));
         System.out.println("Dzielenie: "+real.divide(a,b));
         System.out.println("Potęgowanie: "+real.power(a,b));
@@ -25,7 +25,7 @@ public class Calculator {
 
         integerMethods(integers,5,2);
         System.out.println();
-        realMethods(real,9,2);
+        realMethods(real,-5.2,2.3);
 
     }
 }
