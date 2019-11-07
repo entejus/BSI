@@ -23,7 +23,7 @@ public class RealTest {
     }
 
     @Test
-    public void substract() {
+    public void subtract() {
     }
 
     @Test

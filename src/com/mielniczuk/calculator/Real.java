@@ -1,25 +1,25 @@
 package com.mielniczuk.calculator;
 
 public class Real {
-    double  add (double a, double b){
-        return a+b;
+    double  add (double addend1, double addend2){
+        return addend1+addend2;
     }
-    double substract(double a, double b){
-        return a-b;
+    double subtract(double minuend, double subtrahend){
+        return minuend-subtrahend;
     }
-    double multiply(double a, double b){
-        return a*b;
+    double multiply(double factor1, double factor2){
+        return factor1*factor2;
     }
-    double divide(double a, double b){
-        if(b==0){
+    double divide(double dividend, double divisor){
+        if(divisor==0){
             throw new IllegalArgumentException("Argument 'divisor' is 0");
         }
-        return a/b;
+        return dividend/divisor;
     }
-    double power(double a,double b){
-        return Math.pow(a,b);
+    double power(double base,double exponent){
+        return Math.pow(base,exponent);
     }
-    double squareRoot(double a){
-        return Math.sqrt(a);
+    double squareRoot(double number){
+        return Math.sqrt(number);
     }
 }
