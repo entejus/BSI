@@ -11,6 +11,7 @@ import static org.junit.Assert.*;
 public class RealTest {
 
     private static Real real;
+
     @BeforeClass
     public static void setUp() {
         real = new Real();
@@ -20,35 +21,36 @@ public class RealTest {
     @Parameters({"0.0,0.0,0.0", "-5.2,2.3,-2.9", "-3.1,-10.0,-13.1",
             "50.1111,74.7777,124.8888"})
     public void add(double addend1, double addend2, double sum) {
-        assertEquals(sum,real.add(addend1,addend2),0.001);
+        assertEquals(sum, real.add(addend1, addend2), 0.001);
     }
 
     @Test
     @Parameters({"0.0,0.0,0.0", "-5.2,2.3,-7.5", "-3.5,-10.3,6.8",
-            "50.1111,74.7777,-24.6666","1033.6666,-66.3333,1099.9999"})
+            "50.1111,74.7777,-24.6666", "1033.6666,-66.3333,1099.9999"})
     public void subtract(double minuend, double subtrahend, double difference) {
-        assertEquals(difference,real.subtract(minuend,subtrahend),0.001);
+        assertEquals(difference, real.subtract(minuend, subtrahend), 0.001);
     }
 
     @Test
     @Parameters({"0.0,0.0,0.0", "-5.2,2.3,-11.96", "-3.5,-10.3,36.05",
-            "50.1111,74.7777,3747.193","1034.1231,0.0,0.0"})
-    public void multiply(double factor1,double factor2,double product) {
-        assertEquals(product,real.multiply(factor1,factor2),0.01);
+            "50.1111,74.7777,3747.193", "1034.1231,0.0,0.0"})
+    public void multiply(double factor1, double factor2, double product) {
+        assertEquals(product, real.multiply(factor1, factor2), 0.01);
     }
 
     @Test
     @Parameters({"0.0,12.0,0.0", "-5.2,2.3,-2.26", "182.88,2.0,91.44",
-            "1024.1024,-16.16,-63.372","1034.0,-66.0,-15.66"})
-    public void divide(double dividend, double divisor,double quotient) {
-        assertEquals(quotient,real.divide(dividend,divisor),0.01);
+            "1024.1024,-16.16,-63.372", "1034.0,-66.0,-15.66"})
+    public void divide(double dividend, double divisor, double quotient) {
+        assertEquals(quotient, real.divide(dividend, divisor), 0.01);
     }
 
     @Test
-    @Parameters({"0.0,12.0,0.0", "-5.2,2.3,-2.26", "182.88,2.0,91.44",
-            "1024.1024,-16.16,-63.372","1034.0,-66.0,-15.66"})
-    public void power(double base,double exponent,double result) {
-        assertEquals(result,real.power(base,exponent),0.01);
+    @Parameters({"0.0,12.0,0.0", "5.2,2.3,44.341", "-182.88,1.0,-182.88",
+            "24.1,-1.16,0.0249", "-3.0,3.0,-27.0", "-5.0,0.0,1", "0.0,0.0,1.0",
+            "-0.2,2.0,0.04"})
+    public void power(double base, double exponent, double result) {
+        assertEquals(result, real.power(base, exponent), 0.001);
     }
 
     @Test
