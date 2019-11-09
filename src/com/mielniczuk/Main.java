@@ -19,6 +19,10 @@ public class Main {
 
     private SecretKey key;
     private DBConnector dbConnector;
+    private Cipher encryptCipher;
+    private Cipher decryptCipher;
+
+
 
 
     private JTextArea inputTextArea;
@@ -33,15 +37,15 @@ public class Main {
         FileInputStream inputFile = new FileInputStream(FILE_PATH);
         FileInputStream inputData = new FileInputStream(DATA_PATH);
 
-        Cipher cipher = Cipher.getInstance("DESede");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
+        encryptCipher = Cipher.getInstance("DESede");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
 
-        String encryptedText = encryptText(inputText, ENCRYPTED_FILE2_PATH,cipher);
+        String encryptedText = encryptText(inputText, ENCRYPTED_FILE2_PATH,encryptCipher);
         encryptedTextArea.setText(encryptedText);
 
-        encryptFile(inputFile, ENCRYPTED_FILE_PATH, cipher);
+        encryptFile(inputFile, ENCRYPTED_FILE_PATH, encryptCipher);
 
-        ByteArrayOutputStream encryptedDataOutput = (ByteArrayOutputStream) encryptData(inputData, cipher);
+        ByteArrayOutputStream encryptedDataOutput = (ByteArrayOutputStream) encryptData(inputData, encryptCipher);
         ByteArrayInputStream encryptedDataInput = new ByteArrayInputStream(encryptedDataOutput.toByteArray());
         dbConnector.setData(encryptedDataInput);
 
@@ -77,16 +81,16 @@ public class Main {
         FileInputStream inputFile2 = new FileInputStream(ENCRYPTED_FILE2_PATH);
         FileOutputStream outputData = new FileOutputStream(DECRYPTED_DATA_PATH);
 
-        Cipher cipher = Cipher.getInstance("DESede");
-        cipher.init(Cipher.DECRYPT_MODE, key);
+        decryptCipher = Cipher.getInstance("DESede");
+        decryptCipher.init(Cipher.DECRYPT_MODE, key);
 
-        String decryptedText = decryptText(encryptedText,inputFile2,cipher);
+        String decryptedText = decryptText(encryptedText,inputFile2,decryptCipher);
         decryptedTextArea.setText(decryptedText);
 
-        decryptFile(inputFile, DECRYPTED_FILE_PATH, cipher);
+        decryptFile(inputFile, DECRYPTED_FILE_PATH, decryptCipher);
 
         ByteArrayInputStream encryptedDataInput = dbConnector.getData();
-        decryptData(encryptedDataInput, outputData, cipher);
+        decryptData(encryptedDataInput, outputData, decryptCipher);
 
         inputFile.close();
         inputFile2.close();
