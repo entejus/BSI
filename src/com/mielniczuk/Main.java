@@ -40,12 +40,12 @@ public class Main {
         encryptCipher = Cipher.getInstance("DESede");
         encryptCipher.init(Cipher.ENCRYPT_MODE, key);
 
-        String encryptedText = encryptText(inputText, ENCRYPTED_FILE2_PATH,encryptCipher);
+        String encryptedText = encryptText(inputText, ENCRYPTED_FILE2_PATH);
         encryptedTextArea.setText(encryptedText);
 
-        encryptFile(inputFile, ENCRYPTED_FILE_PATH, encryptCipher);
+        encryptFile(inputFile, ENCRYPTED_FILE_PATH);
 
-        ByteArrayOutputStream encryptedDataOutput = (ByteArrayOutputStream) encryptData(inputData, encryptCipher);
+        ByteArrayOutputStream encryptedDataOutput = (ByteArrayOutputStream) encryptData(inputData);
         ByteArrayInputStream encryptedDataInput = new ByteArrayInputStream(encryptedDataOutput.toByteArray());
         dbConnector.setData(encryptedDataInput);
 
@@ -54,23 +54,23 @@ public class Main {
         encryptedDataInput.close();
     }
 
-    public String encryptText(String inputText,  String outputFilePath,Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
+    public String encryptText(String inputText,  String outputFilePath) throws BadPaddingException, IllegalBlockSizeException, IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
         byte[] inputBytes = inputText.getBytes();
-        outputFile.write(cipher.doFinal(inputBytes));
+        outputFile.write(encryptCipher.doFinal(inputBytes));
         outputFile.close();
-        return Base64.getEncoder().encodeToString(cipher.doFinal(inputBytes));
+        return Base64.getEncoder().encodeToString(encryptCipher.doFinal(inputBytes));
     }
 
-    public void encryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
+    public void encryptFile(FileInputStream inputFile, String outputFilePath) throws IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
-        cryptingStream(inputFile, outputFile, cipher);
+        cryptingStream(inputFile, outputFile, encryptCipher);
         outputFile.close();
     }
 
-    public OutputStream encryptData(FileInputStream inputFile, Cipher cipher) throws IOException {
+    public OutputStream encryptData(FileInputStream inputFile) throws IOException {
         OutputStream outStream = new ByteArrayOutputStream();
-        cryptingStream(inputFile, outStream, cipher);
+        cryptingStream(inputFile, outStream, encryptCipher);
         return outStream;
     }
 
@@ -84,13 +84,13 @@ public class Main {
         decryptCipher = Cipher.getInstance("DESede");
         decryptCipher.init(Cipher.DECRYPT_MODE, key);
 
-        String decryptedText = decryptText(encryptedText,inputFile2,decryptCipher);
+        String decryptedText = decryptText(encryptedText,inputFile2);
         decryptedTextArea.setText(decryptedText);
 
-        decryptFile(inputFile, DECRYPTED_FILE_PATH, decryptCipher);
+        decryptFile(inputFile, DECRYPTED_FILE_PATH);
 
         ByteArrayInputStream encryptedDataInput = dbConnector.getData();
-        decryptData(encryptedDataInput, outputData, decryptCipher);
+        decryptData(encryptedDataInput, outputData);
 
         inputFile.close();
         inputFile2.close();
@@ -98,21 +98,21 @@ public class Main {
         encryptedDataInput.close();
     }
 
-    public String decryptText(String encryptedText ,FileInputStream inputFile, Cipher cipher) throws BadPaddingException, IllegalBlockSizeException, IOException {
+    public String decryptText(String encryptedText ,FileInputStream inputFile) throws BadPaddingException, IllegalBlockSizeException, IOException {
 //        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
         byte[] encryptedBytes = inputFile.readAllBytes();
-        return new String(cipher.doFinal(encryptedBytes));
+        return new String(decryptCipher.doFinal(encryptedBytes));
     }
 
-    public void decryptFile(FileInputStream inputFile, String outputFilePath, Cipher cipher) throws IOException {
+    public void decryptFile(FileInputStream inputFile, String outputFilePath) throws IOException {
         FileOutputStream outputFile = new FileOutputStream(outputFilePath);
-        cryptingStream(inputFile, outputFile, cipher);
+        cryptingStream(inputFile, outputFile, decryptCipher);
         outputFile.close();
     }
 
 
-    public void decryptData(ByteArrayInputStream inputStream, FileOutputStream outputFile, Cipher cipher) throws IOException {
-        cryptingStream(inputStream, outputFile, cipher);
+    public void decryptData(ByteArrayInputStream inputStream, FileOutputStream outputFile) throws IOException {
+        cryptingStream(inputStream, outputFile, decryptCipher);
     }
 
 
