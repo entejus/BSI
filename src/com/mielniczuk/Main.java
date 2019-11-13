@@ -11,7 +11,7 @@ import java.util.Base64;
 public class Main {
 
 
-    private static final String FILE_PATH = "src/wolf.jpg";
+    private static final String FILE_PATH = "src/f.txt";
     private static final String DECRYPTED_FILE_PATH = "src/wolfDecrypted.jpg";
     private static final String ENCRYPTED_FILE_PATH = "src/wolfEncrypted.cfr";
     private static final String ENCRYPTED_TEXT_FILE_PATH = "src/text.cfr";
@@ -60,7 +60,9 @@ public class Main {
         //File encryption
         FileInputStream inputFile = new FileInputStream(FILE_PATH);
         FileOutputStream outputFile = new FileOutputStream(ENCRYPTED_FILE_PATH);
-        outputFile.write(encryptData(inputFile));
+        byte[] t2 = encryptData(inputFile);
+        System.out.println("B64: " +Base64.getEncoder().encodeToString(t2));
+        outputFile.write(t2);
         inputFile.close();
         outputFile.close();
 
