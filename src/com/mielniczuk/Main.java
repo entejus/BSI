@@ -1,10 +1,12 @@
 package com.mielniczuk;
 
 import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class Main {
 
@@ -15,6 +17,8 @@ public class Main {
     private static final String ENCRYPTED_TEXT_FILE_PATH = "src/text.cfr";
     private static final String DATA_PATH = "src/plik.txt";
     private static final String DECRYPTED_DATA_PATH = "src/plikDecrypted.txt";
+    private static final String ALGORITHM = "AES";
+    private static final String KEY_ALGORITHM = "AES";
 
     private SecretKey key;
     private DBConnector dbConnector;
@@ -27,16 +31,30 @@ public class Main {
     private JButton startButton;
     private JPanel mainJPanel;
 
+    public SecretKey getKey() {
+        return key;
+    }
 
-    public void encrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        //Cipher initialization
-        encryptCipher = Cipher.getInstance("DESede");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+    public void setKey(SecretKey key) {
+        this.key = key;
+    }
 
+    private static String bytesToHex(byte[] hashInBytes) {
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashInBytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+
+    }
+
+    public void encrypt() throws IOException, BadPaddingException, IllegalBlockSizeException {
         //Text encryption
         String inputText = inputTextArea.getText();
         FileOutputStream encryptedTextFile = new FileOutputStream(ENCRYPTED_TEXT_FILE_PATH);
-        encryptedTextFile.write(encryptText(inputText));
+        byte[] t = encryptText(inputText);
+        encryptedTextFile.write(t);
         encryptedTextFile.close();
 
         //File encryption
@@ -53,7 +71,7 @@ public class Main {
         encryptedDataInput.close();
     }
 
-    public byte[] encryptText(String inputText) throws BadPaddingException, IllegalBlockSizeException, IOException {
+    public byte[] encryptText(String inputText) throws BadPaddingException, IllegalBlockSizeException {
         byte[] inputBytes = inputText.getBytes();
         return encryptCipher.doFinal(inputBytes);
     }
@@ -73,13 +91,10 @@ public class Main {
     }
 
 
-    public void decrypt() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        decryptCipher = Cipher.getInstance("DESede");
-        decryptCipher.init(Cipher.DECRYPT_MODE, key);
-
+    public void decrypt() throws IOException, BadPaddingException, IllegalBlockSizeException {
         //Text decryption
         FileInputStream inputTextFile = new FileInputStream(ENCRYPTED_TEXT_FILE_PATH);
-        String decryptedText = decryptText(inputTextFile);
+        String decryptedText = decryptText(inputTextFile.readAllBytes());
         decryptedTextArea.setText(decryptedText);
         inputTextFile.close();
 
@@ -99,8 +114,7 @@ public class Main {
 
     }
 
-    public String decryptText(FileInputStream inputFile) throws BadPaddingException, IllegalBlockSizeException, IOException {
-        byte[] encryptedBytes = inputFile.readAllBytes();
+    public String decryptText(byte[] encryptedBytes) throws BadPaddingException, IllegalBlockSizeException {
         return new String(decryptCipher.doFinal(encryptedBytes));
     }
 
@@ -119,24 +133,33 @@ public class Main {
     }
 
 
-    public Main() throws NoSuchAlgorithmException {
+    public Main() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+        KeyGenerator keygen = KeyGenerator.getInstance(KEY_ALGORITHM);
+//        key = keygen.generateKey();
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        key = new SecretKeySpec(decodedKey, KEY_ALGORITHM);
+        String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
+        decryptCipher = Cipher.getInstance(ALGORITHM);
+        decryptCipher.init(Cipher.DECRYPT_MODE, key);
 
-        KeyGenerator keygen = KeyGenerator.getInstance("DESede");
-        key = keygen.generateKey();
+        encryptCipher = Cipher.getInstance(ALGORITHM);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
 
         startButton.addActionListener(e -> {
             try {
                 dbConnector = new DBConnector();
                 encrypt();
                 decrypt();
+                System.out.println("Key: "+encodedKey);
+                System.out.println("Key[HEX]: "+bytesToHex(key.getEncoded()));
                 dbConnector.close();
-            } catch (IOException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException ex) {
+            } catch (IOException | BadPaddingException | IllegalBlockSizeException ex) {
                 ex.printStackTrace();
             }
         });
     }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
         JFrame frame = new JFrame("Cryptography");
         frame.setContentPane(new Main().mainJPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
