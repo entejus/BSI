@@ -1,28 +1,23 @@
 package com.mielniczuk;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import javax.sql.DataSource;
 import java.sql.*;
 
 public class DBConnector {
-    private Connection connect = null;
-    private Statement statement = null;
-    private PreparedStatement preparedStatement = null;
-    private ResultSet resultSet = null;
+    private Connection connect;
+    private Statement statement;
+    private PreparedStatement preparedStatement;
+    private ResultSet resultSet;
 
-    public DBConnector() {
+    public DBConnector(DataSource dataSource) {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager
-                    .getConnection("jdbc:mysql://localhost/bsi?"
-                            + "user=root&password=password");
+            connect =dataSource.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
 
     byte[] getData() {
         byte[] data = null;
@@ -30,7 +25,9 @@ public class DBConnector {
             statement = connect.createStatement();
             resultSet = statement
                     .executeQuery("select data from bsi.crypto order by id desc limit 1");
-            resultSet.next();
+            if (!resultSet.first()) {
+                return null;
+            }
             data =  resultSet.getBytes("data");
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,5 +1,7 @@
 package com.mielniczuk;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
@@ -119,15 +121,15 @@ public class Main {
         outputFileOS.close();
     }
 
-    public void cryptingDataDB(File inputFile, File outputFile) throws IOException {
+    public void cryptingDataDB(DBConnector tmpdbConnector,File inputFile, File outputFile) throws IOException {
         //Ecnrypting
         FileInputStream inputDataIS = new FileInputStream(inputFile);
         byte[] encryptedDataInput = encryptData(inputDataIS);
-        dbConnector.setData(encryptedDataInput);
+        tmpdbConnector.setData(encryptedDataInput);
 
         //Decrypting
         FileOutputStream outputDataOS = new FileOutputStream(outputFile);
-        byte[] encryptedDataInputDB = dbConnector.getData();
+        byte[] encryptedDataInputDB = tmpdbConnector.getData();
         outputDataOS.write(decryptData(new ByteArrayInputStream(encryptedDataInputDB)));
         outputDataOS.close();
     }
@@ -151,8 +153,8 @@ public class Main {
         decryptCipher = Cipher.getInstance(ALGORITHM);
         decryptCipher.init(Cipher.DECRYPT_MODE, key);
 
-        //Text cryptography
 
+        //Text cryptography
         File encryptedTextFile = new File(ENCRYPTED_TEXT_FILE_PATH);
 
         //File cryptogrtaphy
@@ -167,14 +169,24 @@ public class Main {
 
         startButton.addActionListener(e -> {
             try {
-                dbConnector = new DBConnector();
                 String inputText = inputTextArea.getText();
                 decryptedTextArea.setText(cryptingText(inputText,encryptedTextFile));
+
+
                 cryptingFile(inputFile,encryptedFile,outputFile);
-                cryptingDataDB(inputDataFile,outputDataFile);
+
+                MysqlDataSource dataSource = new MysqlDataSource();
+                dataSource.setServerName("localhost");
+                dataSource.setPortNumber(3306);
+                dataSource.setDatabaseName("bsi");
+                dataSource.setUser("root");
+                dataSource.setPassword("password");
+                dbConnector = new DBConnector(dataSource);
+                cryptingDataDB(dbConnector,inputDataFile,outputDataFile);
+                dbConnector.close();
+
                 System.out.println("Key: "+encodedKey);
                 System.out.println("Key[HEX]: "+bytesToHex(key.getEncoded()));
-                dbConnector.close();
             } catch (IOException | BadPaddingException | IllegalBlockSizeException ex) {
                 ex.printStackTrace();
             } finally {

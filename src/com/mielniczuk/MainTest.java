@@ -8,22 +8,23 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import org.apache.commons.io.FileUtils;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
+import javax.sql.DataSource;
+
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.*;
 import java.util.Base64;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(JUnitParamsRunner.class)
@@ -33,14 +34,32 @@ public class MainTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
+    @Mock
+    private DBConnector mockDbConnector;
+    @Mock
+    private DataSource mockDataSource;
+    @Mock
+    private Connection mockConnection;
+    @Mock
+    private Statement mockStatement;
+    @Mock
+    private PreparedStatement mockPreparedStatement;
+    @Mock
+    private ResultSet mockResultSet;
+
+
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
+
+        assertNotNull(mockDataSource);
+
     }
 
     @BeforeClass
     public static void setUpClass() throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
         main = new Main();
+
     }
 
 
@@ -136,27 +155,42 @@ public class MainTest {
         assertArrayEquals(FileUtils.readFileToByteArray(inputFile),FileUtils.readFileToByteArray(outputFile));
     }
 
-    @Mock
-    DBConnector mockedDbConnector;
 
     @Test
     @Parameters({"R10IFbRyhvCF9hDvmd96LA==,Tekst,5dn5qv1L9Eg4f/lgWXt25Q==",
-            "R10IFbRyhvCF9hDvmd96LA==,Lorem ipsum dolor sit amet consectetur adipiscing elit"})
-    public void cryptingDataDBTest(String keyB64, String cryptedFileContent) throws IOException, BadPaddingException, IllegalBlockSizeException {
+            "R10IFbRyhvCF9hDvmd96LA==,Lorem ipsum dolor sit amet consectetur adipiscing elit,Ks/09WIerhha+lvNaoAm7KUDYcguyRfa8ema9nCDDR5Nd858RpnfPXVrbDPnaSHj/EFtluCQTqNfhquAXuBn0g=="})
+    public void cryptingDataDBTest(String keyB64, String cryptedFileContent, String encryptedFileData) throws IOException , SQLException {
         final File inputFile = folder.newFile("inputDB.txt");
         final File outputFile = folder.newFile("outputDB.txt");
 
         FileUtils.writeStringToFile(inputFile,cryptedFileContent,"UTF-8");
-        doAnswer((i)-> {
-            System.out.println("DB setData = " + i.getArgument(0));
-            return null;}).when(mockedDbConnector).setData(any(byte[].class));
 
-//        when(mockedDbConnector.getData()).thenReturn();
+
+        when(mockDataSource.getConnection()).thenReturn(mockConnection);
+
+        when(mockConnection.createStatement()).thenReturn(mockStatement);
+        when(mockConnection.prepareStatement(any(String.class))).thenReturn(mockPreparedStatement);
+        doAnswer((i)->true).when(mockConnection).close();
+
+        when(mockStatement.executeQuery(anyString())).thenReturn(mockResultSet);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        doAnswer((i)->true).when(mockPreparedStatement).close();
+
+        when(mockResultSet.first()).thenReturn(true);
+        doAnswer((i)->true).when(mockResultSet).close();
+
+        byte[] encryptedFileDataBytes =Base64.getDecoder().decode(encryptedFileData);
+        when(mockResultSet.getBytes(anyString())).thenReturn(encryptedFileDataBytes);
+        doAnswer((i)->1).when(mockPreparedStatement).setBytes(anyInt(),any(byte[].class));
+        doAnswer((i)-> 1).when(mockDbConnector).setData(any(byte[].class));
+        when(mockDbConnector.getData()).thenReturn(encryptedFileDataBytes);
+
+
         //Setting key
         byte[] decodedKey = Base64.getDecoder().decode(keyB64);
         main.setKey(new SecretKeySpec(decodedKey, "AES"));
 
-        main.cryptingDataDB(inputFile,outputFile);
+        main.cryptingDataDB(mockDbConnector,inputFile,outputFile);
         assertArrayEquals(FileUtils.readFileToByteArray(inputFile),FileUtils.readFileToByteArray(outputFile));
     }
 
