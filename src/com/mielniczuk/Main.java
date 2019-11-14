@@ -11,7 +11,7 @@ import java.util.Base64;
 public class Main {
 
 
-    private static final String FILE_PATH = "src/f.txt";
+    private static final String FILE_PATH = "src/wolf.jpg";
     private static final String DECRYPTED_FILE_PATH = "src/wolfDecrypted.jpg";
     private static final String ENCRYPTED_FILE_PATH = "src/wolfEncrypted.cfr";
     private static final String ENCRYPTED_TEXT_FILE_PATH = "src/text.cfr";
@@ -49,29 +49,7 @@ public class Main {
 
     }
 
-    public void encrypt() throws IOException, BadPaddingException, IllegalBlockSizeException {
-        //Text encryption
-        String inputText = inputTextArea.getText();
-        FileOutputStream encryptedTextFile = new FileOutputStream(ENCRYPTED_TEXT_FILE_PATH);
-        byte[] t = encryptText(inputText);
-        encryptedTextFile.write(t);
-        encryptedTextFile.close();
 
-        //File encryption
-        FileInputStream inputFile = new FileInputStream(FILE_PATH);
-        FileOutputStream outputFile = new FileOutputStream(ENCRYPTED_FILE_PATH);
-        byte[] t2 = encryptData(inputFile);
-        System.out.println("B64: " +Base64.getEncoder().encodeToString(t2));
-        outputFile.write(t2);
-        inputFile.close();
-        outputFile.close();
-
-        //Data encryption
-        FileInputStream inputData = new FileInputStream(DATA_PATH);
-        ByteArrayInputStream encryptedDataInput = new ByteArrayInputStream(encryptData(inputData));
-        dbConnector.setData(encryptedDataInput);
-        encryptedDataInput.close();
-    }
 
     public byte[] encryptText(String inputText) throws BadPaddingException, IllegalBlockSizeException {
         byte[] inputBytes = inputText.getBytes();
@@ -79,7 +57,12 @@ public class Main {
     }
 
 
-    public byte[] encryptData(FileInputStream inputFile) throws IOException {
+    public String decryptText(byte[] encryptedBytes) throws BadPaddingException, IllegalBlockSizeException {
+        return new String(decryptCipher.doFinal(encryptedBytes));
+    }
+
+
+    public byte[] encryptData(InputStream inputFile) throws IOException {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         CipherOutputStream cipherOut = new CipherOutputStream(outStream, encryptCipher);
         byte[] buffer = new byte[2048];
@@ -90,34 +73,6 @@ public class Main {
         cipherOut.close();
         outStream.close();
         return outStream.toByteArray();
-    }
-
-
-    public void decrypt() throws IOException, BadPaddingException, IllegalBlockSizeException {
-        //Text decryption
-        FileInputStream inputTextFile = new FileInputStream(ENCRYPTED_TEXT_FILE_PATH);
-        String decryptedText = decryptText(inputTextFile.readAllBytes());
-        decryptedTextArea.setText(decryptedText);
-        inputTextFile.close();
-
-        //File decryption
-        FileInputStream inputFile = new FileInputStream(ENCRYPTED_FILE_PATH);
-        FileOutputStream outputFile = new FileOutputStream(DECRYPTED_FILE_PATH);
-        outputFile.write(decryptData(inputFile));
-        inputFile.close();
-        outputFile.close();
-
-        //Data decryption
-        FileOutputStream outputData = new FileOutputStream(DECRYPTED_DATA_PATH);
-        ByteArrayInputStream encryptedDataInput = dbConnector.getData();
-        outputData.write(decryptData(encryptedDataInput));
-        encryptedDataInput.close();
-        outputData.close();
-
-    }
-
-    public String decryptText(byte[] encryptedBytes) throws BadPaddingException, IllegalBlockSizeException {
-        return new String(decryptCipher.doFinal(encryptedBytes));
     }
 
 
@@ -134,6 +89,52 @@ public class Main {
         return outStream.toByteArray();
     }
 
+    public String cryptingText(String inputText, File encryptedTextFile) throws IOException, BadPaddingException, IllegalBlockSizeException {
+        //Encrypting
+        FileOutputStream encryptedTextFileOS = new FileOutputStream(encryptedTextFile);
+        byte[] t = encryptText(inputText);
+        encryptedTextFileOS.write(t);
+        encryptedTextFileOS.close();
+
+        //Decrypting
+        FileInputStream encryptedTextFileIS = new FileInputStream(encryptedTextFile);
+        String decryptedText = decryptText(encryptedTextFileIS.readAllBytes());
+        encryptedTextFileIS.close();
+        return decryptedText;
+    }
+
+    public void cryptingFile(File inputFile, File encryptedFile, File outputFile) throws IOException {
+        //Encrypting
+        FileInputStream inputFileIS = new FileInputStream(inputFile);
+        FileOutputStream encryptedFileOS = new FileOutputStream(encryptedFile);
+        encryptedFileOS.write(encryptData(inputFileIS));
+        inputFileIS.close();
+        encryptedFileOS.close();
+
+        //Decrypting
+        FileInputStream encryptedFileIS = new FileInputStream(encryptedFile);
+        FileOutputStream outputFileOS = new FileOutputStream(outputFile);
+        outputFileOS.write(decryptData(encryptedFileIS));
+        encryptedFileIS.close();
+        outputFileOS.close();
+    }
+
+    public void cryptingDataDB(File inputFile, File outputFile) throws IOException {
+        //Ecnrypting
+        FileInputStream inputDataIS = new FileInputStream(inputFile);
+        byte[] encryptedDataInput = encryptData(inputDataIS);
+        dbConnector.setData(encryptedDataInput);
+
+        //Decrypting
+        FileOutputStream outputDataOS = new FileOutputStream(outputFile);
+        byte[] encryptedDataInputDB = dbConnector.getData();
+        outputDataOS.write(decryptData(new ByteArrayInputStream(encryptedDataInputDB)));
+        outputDataOS.close();
+    }
+
+
+
+
 
     public Main() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         KeyGenerator keygen = KeyGenerator.getInstance(KEY_ALGORITHM);
@@ -141,22 +142,42 @@ public class Main {
         byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
         key = new SecretKeySpec(decodedKey, KEY_ALGORITHM);
         String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
+
+        //Encrypting cipher
+        encryptCipher = Cipher.getInstance(ALGORITHM);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+
+        //Decrypting cipher
         decryptCipher = Cipher.getInstance(ALGORITHM);
         decryptCipher.init(Cipher.DECRYPT_MODE, key);
 
-        encryptCipher = Cipher.getInstance(ALGORITHM);
-        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+        //Text cryptography
+
+        File encryptedTextFile = new File(ENCRYPTED_TEXT_FILE_PATH);
+
+        //File cryptogrtaphy
+        File inputFile = new File(FILE_PATH);
+        File encryptedFile = new File(ENCRYPTED_FILE_PATH);
+        File outputFile = new File(DECRYPTED_FILE_PATH);
+
+        //Data DB cryptography
+        File inputDataFile = new File(DATA_PATH);
+        File outputDataFile = new File(DECRYPTED_DATA_PATH);
+
 
         startButton.addActionListener(e -> {
             try {
                 dbConnector = new DBConnector();
-                encrypt();
-                decrypt();
+                String inputText = inputTextArea.getText();
+                decryptedTextArea.setText(cryptingText(inputText,encryptedTextFile));
+                cryptingFile(inputFile,encryptedFile,outputFile);
+                cryptingDataDB(inputDataFile,outputDataFile);
                 System.out.println("Key: "+encodedKey);
                 System.out.println("Key[HEX]: "+bytesToHex(key.getEncoded()));
                 dbConnector.close();
             } catch (IOException | BadPaddingException | IllegalBlockSizeException ex) {
                 ex.printStackTrace();
+            } finally {
             }
         });
     }

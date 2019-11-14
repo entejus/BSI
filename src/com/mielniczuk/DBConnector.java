@@ -24,14 +24,14 @@ public class DBConnector {
         }
     }
 
-    ByteArrayInputStream getData() {
-        ByteArrayInputStream data = null;
+    byte[] getData() {
+        byte[] data = null;
         try {
             statement = connect.createStatement();
             resultSet = statement
                     .executeQuery("select data from bsi.crypto order by id desc limit 1");
             resultSet.next();
-            data =  (ByteArrayInputStream)resultSet.getBinaryStream("data");
+            data =  resultSet.getBytes("data");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -39,10 +39,11 @@ public class DBConnector {
         return data ;
     }
 
-    void setData(ByteArrayInputStream data) {
+    void setData(byte[] data) {
         try {
             preparedStatement = connect.prepareStatement("insert into bsi.crypto values (default , ?)");
-            preparedStatement.setBlob(1, data);
+            preparedStatement.setBytes(1,data);
+//            preparedStatement.setBlob(1, data);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
