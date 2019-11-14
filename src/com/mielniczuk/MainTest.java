@@ -37,7 +37,7 @@ public class MainTest {
 
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         assertNotNull(mockDataSource);
     }
@@ -86,7 +86,6 @@ public class MainTest {
         main.setKey(new SecretKeySpec(decodedKey, "AES"));
 
         assertEquals(cryptedText,main.cryptingText(cryptedText,encryptedFile));
-
     }
 
 
@@ -187,6 +186,14 @@ public class MainTest {
         assertArrayEquals(FileUtils.readFileToByteArray(inputFile),FileUtils.readFileToByteArray(outputFile));
     }
 
+    @Test(expected = FileNotFoundException.class)
+    public void cryptingFileTest_FileNotFound() throws IOException {
+        File file = new File("");
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        main.setKey(new SecretKeySpec(decodedKey, "AES"));
+        main.cryptingFile(file,file,file);
+    }
+
 
     @Mock
     private DBConnector mockDbConnector;
@@ -237,6 +244,14 @@ public class MainTest {
 
         main.cryptingDataDB(mockDbConnector,inputFile,outputFile);
         assertArrayEquals(FileUtils.readFileToByteArray(inputFile),FileUtils.readFileToByteArray(outputFile));
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void cryptingDataDBTest_FileNotFound() throws IOException {
+        File file = new File("");
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        main.setKey(new SecretKeySpec(decodedKey, "AES"));
+        main.cryptingDataDB(mockDbConnector,file,file);
     }
 
 }
