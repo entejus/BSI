@@ -40,7 +40,6 @@ public class DBConnector {
         try {
             preparedStatement = connect.prepareStatement("insert into bsi.crypto values (default , ?)");
             preparedStatement.setBytes(1,data);
-//            preparedStatement.setBlob(1, data);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

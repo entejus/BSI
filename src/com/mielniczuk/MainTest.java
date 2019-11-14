@@ -34,32 +34,17 @@ public class MainTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock
-    private DBConnector mockDbConnector;
-    @Mock
-    private DataSource mockDataSource;
-    @Mock
-    private Connection mockConnection;
-    @Mock
-    private Statement mockStatement;
-    @Mock
-    private PreparedStatement mockPreparedStatement;
-    @Mock
-    private ResultSet mockResultSet;
 
 
     @Before
     public void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
-
         assertNotNull(mockDataSource);
-
     }
 
     @BeforeClass
     public static void setUpClass() throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
         main = new Main();
-
     }
 
 
@@ -88,6 +73,8 @@ public class MainTest {
         assertEquals(decryptedText, expectedDecryptedText);
     }
 
+
+
     @Test
     @Parameters({"R10IFbRyhvCF9hDvmd96LA==,Tekst",
             "R10IFbRyhvCF9hDvmd96LA==,Lorem ipsum dolor sit amet consectetur adipiscing elit"})
@@ -102,6 +89,17 @@ public class MainTest {
 
     }
 
+
+    @Test(expected = FileNotFoundException.class)
+    public void crypingText_FileNotFound_Test() throws BadPaddingException, IOException, IllegalBlockSizeException {
+        File encryptedFile = new File("");
+
+
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        main.setKey(new SecretKeySpec(decodedKey, "AES"));
+        main.cryptingText("Tekst",encryptedFile);
+
+    }
 
     @Test
     @Parameters({"R10IFbRyhvCF9hDvmd96LA==,hello world,tuP5i9mDfZli04eCmayG/g=="})
@@ -119,6 +117,24 @@ public class MainTest {
         assertArrayEquals(expected,main.encryptData(fileInputStream));
     }
 
+    @Test(expected = FileNotFoundException.class)
+    public void testEncryptData_FileNotFound() throws IOException {
+        File inputFile = new File("");
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        main.setKey(new SecretKeySpec(decodedKey, "AES"));
+        main.encryptData(new FileInputStream(inputFile));
+    }
+
+    @Mock
+    InputStream mockIS;
+    @Test(expected = IOException.class)
+    public void testEncryptData_IOException() throws IOException {
+        when(mockIS.read(any(byte[].class))).thenThrow(IOException.class);
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        main.setKey(new SecretKeySpec(decodedKey, "AES"));
+        main.encryptData(mockIS);
+    }
+
     @Test
     @Parameters({"R10IFbRyhvCF9hDvmd96LA==,tuP5i9mDfZli04eCmayG/g==,hello world"})
     public void testDecryptData(String keyB64, String inputData,String expectedOutput) throws IOException {
@@ -134,6 +150,22 @@ public class MainTest {
         String decryptedData = new String(main.decryptData(encryptedFileInputStream));
 
         assertEquals(expectedOutput,decryptedData);
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void testDecryptData_FileNotFound() throws IOException {
+        File inputFile = new File("");
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        main.setKey(new SecretKeySpec(decodedKey, "AES"));
+        main.decryptData(new FileInputStream(inputFile));
+    }
+
+    @Test(expected = IOException.class)
+    public void testDecryptData_IOException() throws IOException {
+        when(mockIS.read(any(byte[].class))).thenThrow(IOException.class);
+        byte[] decodedKey = Base64.getDecoder().decode("R10IFbRyhvCF9hDvmd96LA==");
+        main.setKey(new SecretKeySpec(decodedKey, "AES"));
+        main.decryptData(mockIS);
     }
 
     @Test
@@ -155,6 +187,19 @@ public class MainTest {
         assertArrayEquals(FileUtils.readFileToByteArray(inputFile),FileUtils.readFileToByteArray(outputFile));
     }
 
+
+    @Mock
+    private DBConnector mockDbConnector;
+    @Mock
+    private DataSource mockDataSource;
+    @Mock
+    private Connection mockConnection;
+    @Mock
+    private Statement mockStatement;
+    @Mock
+    private PreparedStatement mockPreparedStatement;
+    @Mock
+    private ResultSet mockResultSet;
 
     @Test
     @Parameters({"R10IFbRyhvCF9hDvmd96LA==,Tekst,5dn5qv1L9Eg4f/lgWXt25Q==",

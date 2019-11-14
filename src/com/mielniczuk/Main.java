@@ -91,7 +91,7 @@ public class Main {
         return outStream.toByteArray();
     }
 
-    public String cryptingText(String inputText, File encryptedTextFile) throws IOException, BadPaddingException, IllegalBlockSizeException {
+    public String cryptingText(String inputText, File encryptedTextFile) throws BadPaddingException, IllegalBlockSizeException, IOException {
         //Encrypting
         FileOutputStream encryptedTextFileOS = new FileOutputStream(encryptedTextFile);
         byte[] t = encryptText(inputText);
